@@ -153,7 +153,8 @@ return .T.
 Static Func ObrPok(pokIsh,pokNew)
 Local p1:='',i
 
-If (pokIsh > pokNew) .and. ((1000-pokIsh)+pokNew > 80 )
+//If (pokIsh > pokNew) .and. ((1000-pokIsh)+pokNew > 80 )
+If (pokIsh >= pokNew) 
    Tone(1000,0.5)
    Alert('Не могу выбрать НП. Ошибка в СИ',{" OK "},"w+/r")
    Close All
@@ -162,7 +163,8 @@ If (pokIsh > pokNew) .and. ((1000-pokIsh)+pokNew > 80 )
 EndIf
 
 Do While (.t.)
-   pokIsh:=Iif(pokIsh=999,0,pokIsh+1)
+//   pokIsh:=Iif(pokIsh=999,0,pokIsh+1)
+   pokIsh:=pokIsh+1
    p1:=p1+Padl(Alltrim(Str(pokIsh)),3,'0')+'_'
    If PokIsh = pokNew
       Exit

@@ -427,5 +427,13 @@ Local str,j:=0
  Sort To (aPDO[i,2]+"mp31.dbf") On cex, shm, chert
  Close All
  Delete File (aPDO[i,2]+"mp31_.dbf")
- PutSi(aPDO[i,2]+"mp31.dbf","MP31  "+aASU[i,4]+aASU[i,3]+"004"+SubStr(aASU[i,5],1,4))
+ PutSi(aPDO[i,2]+"mp31.dbf","MP31  "+aASU[i,4]+aASU[i,3]+"004"+SubStr(aASU[i,5],1,4)) 
+ If !MYNetUse(aPDO[i,2]+"mp31",.T.,5)      //Макарова создание индекса для новой mp31
+    my_box(12,18,15,48,B_DOUBLE+chr(32),"W+/R")
+    @ 13,19 Say' Новый файл MP31.dbf не доступен '
+    @ 14,19 Say'  Нажмите любую клавишу ...      '
+    InKey(0)
+    Return .F.
+ EndIf
+ Index On cex+chert+shm To (aPDO[i,2]+"mp31.ntx")
 Return

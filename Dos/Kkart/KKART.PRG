@@ -214,6 +214,7 @@ SetColor(OldColor)
 SetBlink(old_b)
 Close All
 Clear All
+alert("После корректировок необходимо запустить добавку!!!")
 Clear Screen
 @ maxrow()-2,2 Say'    Сервис ОАСУП ОАО "НПО"НЭВЗ".  '
 Set Cursor On

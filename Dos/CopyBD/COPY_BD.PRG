@@ -599,7 +599,7 @@ Local dir,cget_pic,arh_path,si_mp31
     Next
     Close All
     //в сбыт заносим СИ (служеб.инф-цию)
-    PutSi(n_sbt+".dbf",'SBT   '+Dtoc(Date())+'000'+'003'+'000')
+    PutSi(n_sbt+".dbf",'SBT   '+Dtoc(Date())+'000'+'005'+'00000')
     //в mp31 заносим СИ (служеб.инф-цию длиной 4) к/гг = 1/новый год из PL03_АСУ (в t_pl03ASU 2009)
     si_mp31:=GetSi(n_mp31+".dbf")
     PutSi(n_mp31+".dbf",Stuff(si_mp31,18,6,"0041/"+SubStr(AllTrim(Str(t_pl03ASU)),3,2)))
@@ -613,6 +613,7 @@ Local dir,cget_pic,arh_path,si_mp31
     si_bd04rs:=stuff(si_bd04rs,13,2,ntoc(val(right(arh_year,2))+1,10,2,"0"))
     si_bd04rs:=stuff(si_bd04rs,15,3,ntoc(val(substr(si_bd04rs,15,3))+1,10,3,"0"))
     dl_si:=val(substr(si_bd04rs,18,3))-6
+    si_bd04rs:=stuff(si_bd04rs,23,3,"000")
     for i:=1 to dl_si-1 step 6
       si_bd04rs:=stuff(si_bd04rs,26+i+2,3,"000")
     next
@@ -805,8 +806,9 @@ Local j
         poiskCen(AllTrim(bases->arch),"bd02nz")
       else
         aASU[i,2]:=AllTrim(bases->path)
-      endif
-      cSi:=""   
+      endif     
+      cSi:=""  
+      // Стеценко остановился тут 
       If FileMN(aASU[i,2]+aASU[i,1]+".dbf",10) //если такой файл найден то GetSi()
 //Masha проверяем пусты ли эти файлы!    /*Макарова добавила ns02oc*/
          If aASU[i,1]=='bd02ph'.OR.aASU[i,1]=='ns02oc'.OR. left(aASU[i,1],6)=='bd02nz'.OR.;
@@ -976,7 +978,7 @@ Local j
  //Если товар был закрыт (но новых накладных еще не поступало) пользователь может выполнить принудительную архивацию
  If ((t_pl03ASU-1==t_bd02ASU).And.(t_bd02ASU==t_bd02PDO).And.(t_pl03ASU-1==t_pl03PDO))
     //спрашиваем пользователя надо ли принудительно завершить год
-    //если ДА, то проводим завершение года и создаем на сервере ПДО пустую bd02nc с датой=01.01.год_PL03_ASU и НП=НП_bd02nc_ASU
+    //если ДА, то проводим завершение года и создаем на сервере ПДО пустую bd02nc с датой=01.01.год_PL03_ASU и НП=000//НП=НП_bd02nc_ASU
     Save Screen
     my_box(9,14,17,65,B_DOUBLE+chr(32),"W+/R")
     @ 10, 19 Say' ВНИМАНИЕ !!!  ПЛАН на новый квартал !'
@@ -1052,6 +1054,7 @@ Local j
                If aPDO[i,1]=="bd02nc"
                   DBCreate(aPDO[i,2]+"bd02nc.dbf",aBD02NC)
                   si_bd02nc:=Stuff(si_bd02nc,7,8,"01/01/"+SubStr(Str(t_pl03ASU),3,2))    //меняем дату на новый год
+                  si_bd02nc:=Stuff(si_bd02nc,15,3,"000")    //меняем поколение на новый год
                   PutSi(aPDO[i,2]+"bd02nc.dbf",si_bd02nc)
                   Exit
                EndIf
@@ -1564,7 +1567,7 @@ Local j
 /*если нет файла SBT, то пересоздаем его*/
  If !FileMN(n_sbt+".dbf",10)
     DBCreate(n_sbt,aSbt)
-    PutSi(n_sbt+".dbf",'SBT   '+Dtoc(Date())+'000'+'003'+'000')
+    PutSi(n_sbt+".dbf",'SBT   '+Dtoc(Date())+'000'+'005'+'00000')
  EndIf
 
  /*ПРОВЕРКА НА ИЗМЕНЕНИЕ PL03 и необходимость переформирования Карточек*/
@@ -2498,7 +2501,7 @@ Local n_bd12tc1,ex:=.T.,mes_arh,god_arh
           Rename (n_bd12tc1+".dbf") To (n_bd12tc+".dbf")
           /*Макарова */
           Close bd02nc
-          aeval(directory(aPDO[i,2]+"ncpk*.dbf"),{ | afile | iif(afile[F_NAME]="ncpk"+god_arh+mes_arh,,ferase(aPDO[i,2]+afile[F_NAME])) })
+//          aeval(directory(aPDO[i,2]+"ncpk*.dbf"),{ | afile | iif(afile[F_NAME]="ncpk"+god_arh+mes_arh,,ferase(aPDO[i,2]+afile[F_NAME])) })
           Delete File (aPDO[i,2]+"bd02nc.dbf")
           if fileMN(aPDO[i,2]+"bd02nc.dbf",10)
             alert(aPDO[i,2]+"BD02NC.dbf не удалился после накопления BD12TC.dbf !!!")
@@ -3331,9 +3334,7 @@ aCop:={{"bd02kiy","pathKiy"},{"bd02ki","pathKi"},{"bdki04y","pathKi04y"},{"bd02k
   flag_copy:=.T.
   if fileMN(pathKi04y+"bdki04y.dbf",10)
      si:=GetSi(pathKi04y+"bdki04y.dbf")
-     // смотрим есть ли уже скопированный файл
-     // если уже есть сравниваем даты из СИ и текущую, если равны то флаг-копи в Ложь
-     If substr(si,7,8)=dtoc(date()) 
+     If substr(si,7,8)=dtoc(date())
         flag_copy:=.F.
      EndIf
   EndIf
@@ -3348,7 +3349,6 @@ aCop:={{"bd02kiy","pathKiy"},{"bd02ki","pathKi"},{"bdki04y","pathKi04y"},{"bd02k
         Return .F.
      EndIf
      Si:=GetSi(pathKi04y+"bdki04y.dbf")
-     //пишем текущую дату в СИ
      PutSi(pathKi04y+"bdki04y.dbf",SubStr(Si,1,6)+DToC(date())+SubStr(Si,15,len(Si)-14))
   EndIf
 

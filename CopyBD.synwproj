@@ -2,11 +2,13 @@
 [Ini]
 WorkDir=
 MainFile=
-DefLexer=
+DefLexer=Clipper
 DefLineEnds=0
 DefEnc=2
 SortType=1
 SearchDirs=
+Folded=0,1,6,
+SelItem=0
 
 [Nodes]
 \:CopyBD

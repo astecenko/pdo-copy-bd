@@ -8,7 +8,21 @@ Local n_skl1,ex:=.T.,skl_Si:="",bu,pei,pcena,soob,flRazn:=.F.,npASU,npPDO
     DBCreate(n_skl_nakl,askl_nakl)
  EndIf
  skl_Si:=GetSi(n_skl_nakl+".dbf")
-
+ For i:=1 To Len(aASU)
+    If aASU[i,1]=="bd02nc"
+       Exit
+    EndIf
+ Next
+ if (substr(skl_Si,10,2)=substr(aASU[i,4],4,2));
+      .and. substr(skl_Si,15,3)>=aASU[i,3] 
+    Close All
+    Return .T.
+ endif 
+ if (substr(skl_Si,10,2)<>substr(aASU[i,4],4,2))
+   npPDO:=0
+ else
+   npPDO:=val(substr(skl_Si,15,3))
+ endif
  Set Color To W+/W
  @ 6,8 Clear To 19,71
  For i:=1 To Len(aPDO)
@@ -64,13 +78,14 @@ Local n_skl1,ex:=.T.,skl_Si:="",bu,pei,pcena,soob,flRazn:=.F.,npASU,npPDO
           @ 12,22 Say'  Идет обработка накладных  '
           @ 13,22 Say'   сданных на склады сбыта  '
           npASU:=val(aASU[i,3])
-          npPDO:=iif(empty(aPDO[i,3]),-1000,val(aPDO[i,3]))
-          flRazn:=((npASU-npPDO)<0)
+//          npPDO:=iif(empty(aPDO[i,3]),-1000,val(aPDO[i,3]))
+//          flRazn:=((npASU-npPDO)<0)
           Do While !bd02nc->(Eof())
              @ 14,31 Say bd02nc->(RecNo())
              /*If bd02nc->np==Val(aASU[i,3]) .And. ;*/
-             If ((!flRazn .and. (bd02nc->np > npPDO .and. bd02nc->np<= npASU )) .Or.;
-                (flRazn .and. (bd02nc->np <= npASU .or. bd02nc->np > npPDO ))) .And. ;
+//             If ((!flRazn .and. (bd02nc->np > npPDO .and. bd02nc->np<= npASU )) .Or.;
+//                (flRazn .and. (bd02nc->np <= npASU .or. bd02nc->np > npPDO ))) .And. ;
+             If (bd02nc->np > npPDO .and. bd02nc->np<= npASU )
                 (bd02nc->cp="20".Or.bd02nc->cp="22".Or.;
                 bd02nc->cp="33".Or.;
                 bd02nc->cp="39".Or.bd02nc->cp="42".Or.bd02nc->cp="57")
